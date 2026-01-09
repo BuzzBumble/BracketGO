@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"log/slog"
 	"log"
 	"net/http"
 	"os"
@@ -14,28 +13,18 @@ import (
 
 // main function
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelDebug, // This enables debug logs to be outputted
-	}))
-	slog.SetDefault(logger)
-	slog.Debug("Test test")
 	// connect to database
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	
-	slog.Debug("Test test 2")
 
 	// create table if it doesn't exist
 	_, err = db.Exec("CREATE TABLE IF NOT EXISTS brackets (id SERIAL PRIMARY KEY, name TEXT)")
 	if err != nil {
-		slog.Debug("Issue");
 		log.Fatal(err)
 	}
-	
-	slog.Debug("Test test 3")
 
 	// create router
 	router := mux.NewRouter()
@@ -73,7 +62,7 @@ func enableCORS(next http.Handler) http.Handler {
 }
 
 func jsonContentTypeMiddleware(next http.Handler) http.Handler {
-	slog.Debug("Request handled")
+	
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set JSON Content-Type
 		w.Header().Set("Content-Type", "application/json")

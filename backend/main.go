@@ -1,11 +1,13 @@
 package main
 
 import (
-	"database/sql"
+	"bracketapi/models"
+	"bracketapi/routes"
 	"log"
 	"net/http"
 	"os"
-	"api/routes"
+
+	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -13,18 +15,21 @@ import (
 
 // main function
 func main() {
+	log.Println("Start Server")
 	// connect to database
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sqlx.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	// create table if it doesn't exist
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS brackets (id SERIAL PRIMARY KEY, name TEXT)")
-	if err != nil {
-		log.Fatal(err)
+	tx := db.MustBegin()
+
+	for _, query := range models.SchemaCreateQueries {
+		tx.MustExec(query)
 	}
+
+	tx.Commit()
 
 	// create router
 	router := mux.NewRouter()
@@ -36,6 +41,9 @@ func main() {
 	router.HandleFunc("/api/go/brackets/{id}", routes.GetBracket(db)).Methods("GET")
 	router.HandleFunc("/api/go/brackets/{id}", routes.UpdateBracket(db)).Methods("PUT")
 	router.HandleFunc("/api/go/brackets/{id}", routes.DeleteBracket(db)).Methods("DELETE")
+
+	router.HandleFunc("/api/go/brackets/{bracket_id}/participants", routes.GetParticipants(db)).Methods("GET")
+	router.HandleFunc("/api/go/brackets/{bracket_id}/participants", routes.CreateParticipant(db)).Methods("POST")
 
 	// wrap the router with CORS and JSON content type middlewares
 	enhancedRouter := enableCORS(jsonContentTypeMiddleware(router))
@@ -62,11 +70,10 @@ func enableCORS(next http.Handler) http.Handler {
 }
 
 func jsonContentTypeMiddleware(next http.Handler) http.Handler {
-	
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set JSON Content-Type
 		w.Header().Set("Content-Type", "application/json")
 		next.ServeHTTP(w, r)
 	})
 }
-

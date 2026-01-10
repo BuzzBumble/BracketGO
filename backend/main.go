@@ -40,6 +40,9 @@ func main() {
 	router.HandleFunc("/api/go/brackets/{id}", routes.UpdateBracket(db)).Methods("PUT")
 	router.HandleFunc("/api/go/brackets/{id}", routes.DeleteBracket(db)).Methods("DELETE")
 
+	router.HandleFunc("/api/go/brackets/{bracket_id}/participants", routes.GetParticipants(db)).Methods("GET")
+	router.HandleFunc("/api/go/brackets/{bracket_id}/participants", routes.CreateParticipant(db)).Methods("POST")
+
 	// wrap the router with CORS and JSON content type middlewares
 	enhancedRouter := enableCORS(jsonContentTypeMiddleware(router))
 	// start server

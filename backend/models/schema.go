@@ -18,8 +18,8 @@ var createParticipants = `CREATE TABLE IF NOT EXISTS participants (
 	)`
 
 var SchemaCreateQueries = []string{
-	dropBrackets,
 	dropParticipants,
+	dropBrackets,
 	createBrackets,
 	createParticipants,
 }

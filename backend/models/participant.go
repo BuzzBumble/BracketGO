@@ -3,6 +3,8 @@ package models
 import (
 	"database/sql"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Participant struct {
@@ -17,7 +19,7 @@ var createParticipant = "INSERT INTO participants (name, bracket_id) VALUES ($1,
 var updateParticipant = "UPDATE participants SET name = $1 WHERE id = $2"
 var deleteParticipant = "DELETE FROM participants WHERE id = $1"
 
-func GetParticipants(db *sql.DB, bracketId string) []Participant {
+func GetParticipants(db *sqlx.DB, bracketId string) []Participant {
 	rows, err := db.Query(getParticipants, bracketId)
 	if err != nil {
 		log.Fatal(err)
@@ -47,7 +49,7 @@ func GetParticipant(db *sql.DB, id string) Participant {
 	return b
 }
 
-func CreateParticipant(db *sql.DB, data *Participant) *Participant {
+func CreateParticipant(db *sqlx.DB, data *Participant) *Participant {
 	err := db.QueryRow(createParticipant, data.Name, data.BracketId).Scan(&data.Id)
 	if err != nil {
 		log.Fatal(err)

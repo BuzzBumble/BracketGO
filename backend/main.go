@@ -3,10 +3,11 @@ package main
 import (
 	"bracketapi/models"
 	"bracketapi/routes"
-	"database/sql"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -16,18 +17,19 @@ import (
 func main() {
 	log.Println("Start Server")
 	// connect to database
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	db, err := sqlx.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
+	tx := db.MustBegin()
+
 	for _, query := range models.SchemaCreateQueries {
-		_, err = db.Exec(query)
-		if err != nil {
-			log.Fatal(err)
-		}
+		tx.MustExec(query)
 	}
+
+	tx.Commit()
 
 	// create router
 	router := mux.NewRouter()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bracketapi/models"
 	"bracketapi/routes"
 	"database/sql"
 	"log"
@@ -21,10 +22,11 @@ func main() {
 	}
 	defer db.Close()
 
-	// create table if it doesn't exist
-	_, err = db.Exec("CREATE TABLE IF NOT EXISTS brackets (id SERIAL PRIMARY KEY, name TEXT)")
-	if err != nil {
-		log.Fatal(err)
+	for _, query := range models.SchemaCreateQueries {
+		_, err = db.Exec(query)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// create router

@@ -1,11 +1,11 @@
 package main
 
 import (
+	"bracketapi/routes"
 	"database/sql"
 	"log"
 	"net/http"
 	"os"
-	"api/routes"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -13,6 +13,7 @@ import (
 
 // main function
 func main() {
+	log.Println("Start Server")
 	// connect to database
 	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
@@ -62,11 +63,10 @@ func enableCORS(next http.Handler) http.Handler {
 }
 
 func jsonContentTypeMiddleware(next http.Handler) http.Handler {
-	
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Set JSON Content-Type
 		w.Header().Set("Content-Type", "application/json")
 		next.ServeHTTP(w, r)
 	})
 }
-

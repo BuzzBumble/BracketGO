@@ -1,4 +1,4 @@
-module api
+module bracketapi
 
 go 1.23.5
 

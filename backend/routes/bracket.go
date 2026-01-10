@@ -2,15 +2,16 @@ package routes
 
 import (
 	"bracketapi/models"
-	"database/sql"
 	"encoding/json"
 	"net/http"
+
+	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
 )
 
 // get all brackets
-func GetBrackets(db *sql.DB) http.HandlerFunc {
+func GetBrackets(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		brackets := models.GetBrackets(db)
 		json.NewEncoder(w).Encode(brackets)
@@ -18,7 +19,7 @@ func GetBrackets(db *sql.DB) http.HandlerFunc {
 }
 
 // get Bracket by id
-func GetBracket(db *sql.DB) http.HandlerFunc {
+func GetBracket(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]
@@ -30,7 +31,7 @@ func GetBracket(db *sql.DB) http.HandlerFunc {
 }
 
 // create Bracket
-func CreateBracket(db *sql.DB) http.HandlerFunc {
+func CreateBracket(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var b models.Bracket
 		json.NewDecoder(r.Body).Decode(&b)
@@ -42,7 +43,7 @@ func CreateBracket(db *sql.DB) http.HandlerFunc {
 }
 
 // update Bracket
-func UpdateBracket(db *sql.DB) http.HandlerFunc {
+func UpdateBracket(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var b models.Bracket
 		json.NewDecoder(r.Body).Decode(&b)
@@ -58,7 +59,7 @@ func UpdateBracket(db *sql.DB) http.HandlerFunc {
 }
 
 // delete Bracket
-func DeleteBracket(db *sql.DB) http.HandlerFunc {
+func DeleteBracket(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars["id"]

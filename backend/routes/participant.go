@@ -2,17 +2,17 @@ package routes
 
 import (
 	"bracketapi/models"
-	"database/sql"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/jmoiron/sqlx"
 
 	"github.com/gorilla/mux"
 )
 
 // get all Participants
-func GetParticipants(db *sql.DB) http.HandlerFunc {
+func GetParticipants(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		bracket_id := vars["bracket_id"]
@@ -22,19 +22,14 @@ func GetParticipants(db *sql.DB) http.HandlerFunc {
 }
 
 // create Participant
-func CreateParticipant(db *sql.DB) http.HandlerFunc {
+func CreateParticipant(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var err error
 		vars := mux.Vars(r)
 		bracket_id := vars["bracket_id"]
 
 		var p models.Participant
 		json.NewDecoder(r.Body).Decode(&p)
-
-		p.BracketId, err = strconv.Atoi(bracket_id)
-		if err != nil {
-			log.Fatal(err)
-		}
+		p.BracketId, _ = strconv.Atoi(bracket_id)
 
 		models.CreateParticipant(db, &p)
 

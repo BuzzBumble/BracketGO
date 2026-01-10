@@ -1,8 +1,9 @@
 package models
 
 import (
-	"database/sql"
 	"log"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type Bracket struct {
@@ -10,34 +11,19 @@ type Bracket struct {
 	Name string `json:"name"`
 }
 
-var getBrackets = "SELECT * FROM brackets"
+var getBrackets = "SELECT * FROM brackets ORDER BY id ASC"
 var getBracket = "SELECT * FROM brackets WHERE id = $1"
 var createBracket = "INSERT INTO brackets (name) VALUES ($1) RETURNING id"
 var updateBracket = "UPDATE brackets SET name = $1 WHERE id = $2"
 var deleteBracket = "DELETE FROM brackets WHERE id = $1"
 
-func GetBrackets(db *sql.DB) []Bracket {
-	rows, err := db.Query(getBrackets)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
+func GetBrackets(db *sqlx.DB) []Bracket {
 	brackets := []Bracket{} // array of brackets
-	for rows.Next() {
-		var b Bracket
-		if err := rows.Scan(&b.Id, &b.Name); err != nil {
-			log.Fatal(err)
-		}
-		brackets = append(brackets, b)
-	}
-	if err := rows.Err(); err != nil {
-		log.Fatal(err)
-	}
+	db.Select(&brackets, getBrackets)
 	return brackets
 }
 
-func GetBracket(db *sql.DB, id string) Bracket {
+func GetBracket(db *sqlx.DB, id string) Bracket {
 	var b Bracket
 	err := db.QueryRow(getBracket, id).Scan(&b.Id, &b.Name)
 	if err != nil {
@@ -46,7 +32,7 @@ func GetBracket(db *sql.DB, id string) Bracket {
 	return b
 }
 
-func CreateBracket(db *sql.DB, data *Bracket) *Bracket {
+func CreateBracket(db *sqlx.DB, data *Bracket) *Bracket {
 	err := db.QueryRow(createBracket, data.Name).Scan(&data.Id)
 	if err != nil {
 		log.Fatal(err)
@@ -54,7 +40,7 @@ func CreateBracket(db *sql.DB, data *Bracket) *Bracket {
 	return data
 }
 
-func UpdateBracket(db *sql.DB, id string, data *Bracket) Bracket {
+func UpdateBracket(db *sqlx.DB, id string, data *Bracket) Bracket {
 	_, err := db.Exec(updateBracket, data.Name, id)
 	if err != nil {
 		log.Fatal(err)
@@ -69,7 +55,7 @@ func UpdateBracket(db *sql.DB, id string, data *Bracket) Bracket {
 	return updatedBracket
 }
 
-func DeleteBracket(db *sql.DB, id string) string {
+func DeleteBracket(db *sqlx.DB, id string) string {
 	var b Bracket
 	err := db.QueryRow(getBracket, id).Scan(&b.Id, &b.Name)
 	if err != nil {

@@ -1,4 +1,16 @@
 services:
+  frontend:
+      container_name: frontend
+      image: nextapp:1.0.0
+      build:
+        context: ./bracket_frontend
+        dockerfile: next.dockerfile
+      ports:
+        - "3000:3000"
+      environment:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+      depends_on:
+        - webserver
   webserver:
       container_name: webserver
       image: buzzbumble/webserver:1.0.0

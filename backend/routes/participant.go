@@ -16,8 +16,12 @@ func GetParticipants(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		bracket_id := vars["bracket_id"]
-		participants := models.GetParticipants(db, bracket_id)
-		json.NewEncoder(w).Encode(participants)
+		p, err := models.GetParticipants(db, bracket_id)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, p)
+		}
 	}
 }
 
@@ -31,9 +35,13 @@ func CreateParticipant(db *sqlx.DB) http.HandlerFunc {
 		json.NewDecoder(r.Body).Decode(&p)
 		p.BracketId, _ = strconv.Atoi(bracket_id)
 
-		models.CreateParticipant(db, &p)
+		err := models.CreateParticipant(db, &p)
 
-		json.NewEncoder(w).Encode(p)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, p)
+		}
 	}
 }
 
@@ -42,9 +50,13 @@ func GetParticipant(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		p := models.GetParticipant(db, id)
+		p, err := models.GetParticipant(db, id)
 
-		json.NewEncoder(w).Encode(p)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, p)
+		}
 	}
 }
 
@@ -56,9 +68,12 @@ func UpdateParticipant(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		models.UpdateParticipant(db, id, &p)
-
-		json.NewEncoder(w).Encode(p)
+		err := models.UpdateParticipant(db, id, &p)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, p)
+		}
 	}
 }
 
@@ -67,6 +82,11 @@ func DeleteParticipant(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		models.DeleteParticipant(db, id)
+		err := models.DeleteParticipant(db, id)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, nil)
+		}
 	}
 }

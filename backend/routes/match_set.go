@@ -14,8 +14,12 @@ func GetMatchSets(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		bid := vars["bracket_id"]
-		ms := models.GetMatchSets(db, bid)
-		json.NewEncoder(w).Encode(ms)
+		ms, err := models.GetMatchSets(db, bid)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, ms)
+		}
 	}
 }
 
@@ -27,9 +31,12 @@ func CreateMatchSet(db *sqlx.DB) http.HandlerFunc {
 		json.NewDecoder(r.Body).Decode(&ms)
 		ms.BracketId, _ = strconv.Atoi(bid)
 
-		models.CreateMatchSet(db, &ms)
-
-		json.NewEncoder(w).Encode(ms)
+		err := models.CreateMatchSet(db, &ms)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, ms)
+		}
 	}
 }
 
@@ -38,9 +45,12 @@ func GetMatchSet(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		ms := models.GetMatchSet(db, id)
-
-		json.NewEncoder(w).Encode(ms)
+		ms, err := models.GetMatchSet(db, id)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, ms)
+		}
 	}
 }
 
@@ -51,9 +61,12 @@ func UpdateMatchSet(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		models.UpdateMatchSet(db, id, &ms)
-
-		json.NewEncoder(w).Encode(ms)
+		err := models.UpdateMatchSet(db, id, &ms)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, ms)
+		}
 	}
 }
 
@@ -62,6 +75,11 @@ func DeleteMatchSet(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		models.DeleteMatchSet(db, id)
+		err := models.DeleteMatchSet(db, id)
+		if err != nil {
+			SendErrorResponse(w, http.StatusInternalServerError, err.Error())
+		} else {
+			SendJSONResponse(w, http.StatusOK, nil)
+		}
 	}
 }

@@ -1,8 +1,6 @@
 package models
 
 import (
-	"log/slog"
-
 	"github.com/jmoiron/sqlx"
 )
 
@@ -17,47 +15,33 @@ var createBracket = "INSERT INTO brackets (name) VALUES ($1) RETURNING id"
 var updateBracket = "UPDATE brackets SET name = $2 WHERE id = $1"
 var deleteBracket = "DELETE FROM brackets WHERE id = $1"
 
-func GetBrackets(db *sqlx.DB) []Bracket {
+func GetBrackets(db *sqlx.DB) ([]Bracket, error) {
 	brackets := []Bracket{} // array of brackets
 	err := db.Select(&brackets, getBrackets)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return brackets
+	return brackets, err
 }
 
-func CreateBracket(db *sqlx.DB, data *Bracket) *Bracket {
+func CreateBracket(db *sqlx.DB, data *Bracket) error {
 	err := db.QueryRow(createBracket, data.Name).Scan(&data.Id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return data
+	return err
 }
 
-func GetBracket(db *sqlx.DB, id string) Bracket {
+func GetBracket(db *sqlx.DB, id string) (Bracket, error) {
 	var b Bracket
 	err := db.Get(&b, getBracket, id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return b
+	return b, err
 }
 
-func UpdateBracket(db *sqlx.DB, id string, data *Bracket) {
+func UpdateBracket(db *sqlx.DB, id string, data *Bracket) error {
 	_, err := db.Exec(updateBracket, id, data.Name)
 	if err != nil {
-		slog.Error(err.Error())
+		return err
 	}
 
-	err = db.QueryRowx(getBracket, id).StructScan(data)
-	if err != nil {
-		slog.Error(err.Error())
-	}
+	return db.QueryRowx(getBracket, id).StructScan(data)
 }
 
-func DeleteBracket(db *sqlx.DB, id string) {
+func DeleteBracket(db *sqlx.DB, id string) error {
 	_, err := db.Exec(deleteBracket, id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
+	return err
 }

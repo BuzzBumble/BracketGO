@@ -2,10 +2,34 @@ package routes
 
 import (
 	"bracketapi/middleware"
+	"encoding/json"
+	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 )
+
+type StandardResponse struct {
+	Data  interface{} `json:"data,omitempty"`
+	Error interface{} `json:"error,omitempty"`
+}
+
+func SendJSONResponse(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	response := StandardResponse{Data: data}
+	json.NewEncoder(w).Encode(response)
+}
+
+func SendErrorResponse(w http.ResponseWriter, status int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	e := map[string]string{"message": message}
+	response := StandardResponse{Error: e}
+	json.NewEncoder(w).Encode(response)
+}
 
 func RegisterMiddleware(r *mux.Router) {
 	r.Use(middleware.RequestLoggerMiddleware)

@@ -51,6 +51,7 @@ func main() {
 	// create router
 	router := mux.NewRouter()
 
+	router.NotFoundHandler = http.HandlerFunc(NotFoundHandler)
 	routes.RegisterMiddleware(router)
 	slog.Info("Middleware successfully registered")
 	routes.RegisterRoutes(router, db)
@@ -59,4 +60,13 @@ func main() {
 	// start server
 	slog.Info("Starting server on port " + os.Getenv("PORT"))
 	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
+}
+
+func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusNotFound)
+	slog.Info("Request",
+		slog.String("Method", r.Method),
+		slog.String("URL", r.URL.String()),
+		slog.String("Status", "404 Not Found"),
+	)
 }

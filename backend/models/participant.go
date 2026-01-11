@@ -43,27 +43,27 @@ func CreateParticipant(db *sqlx.DB, data *Participant) *Participant {
 }
 
 func UpdateParticipant(db *sqlx.DB, id string, data *Participant) Participant {
-	_, err := db.Exec(updateBracket, data.Name, id)
+	_, err := db.Exec(updateParticipant, data.Name, id)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var updatedBracket Participant
-	err = db.QueryRowx(getBracket, id).StructScan(&updatedBracket)
+	var updatedParticipant Participant
+	err = db.QueryRowx(getParticipant, id).StructScan(&updatedParticipant)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return updatedBracket
+	return updatedParticipant
 }
 
 func DeleteParticipant(db *sqlx.DB, id string) string {
-	var b Participant
-	err := db.QueryRowx(getBracket, id).StructScan(&b)
+	var p Participant
+	err := db.QueryRowx(getParticipant, id).StructScan(&p)
 	if err != nil {
 		log.Fatal(err)
 	} else {
-		_, err := db.Exec(deleteBracket, id)
+		_, err := db.Exec(deleteParticipant, id)
 		if err != nil {
 			log.Fatal(err)
 		}

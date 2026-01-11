@@ -12,7 +12,7 @@ type Bracket struct {
 }
 
 var getBrackets = "SELECT * FROM brackets ORDER BY id ASC"
-var getBracket = "SELECT * FROM brackets WHERE id = $1"
+var getBracket = "SELECT * FROM brackets WHERE id = $1 LIMIT 1"
 var createBracket = "INSERT INTO brackets (name) VALUES ($1) RETURNING id"
 var updateBracket = "UPDATE brackets SET name = $1 WHERE id = $2"
 var deleteBracket = "DELETE FROM brackets WHERE id = $1"
@@ -25,7 +25,7 @@ func GetBrackets(db *sqlx.DB) []Bracket {
 
 func GetBracket(db *sqlx.DB, id string) Bracket {
 	var b Bracket
-	err := db.QueryRow(getBracket, id).Scan(&b.Id, &b.Name)
+	err := db.Get(&b, getBracket, id)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func UpdateBracket(db *sqlx.DB, id string, data *Bracket) Bracket {
 	}
 
 	var updatedBracket Bracket
-	err = db.QueryRow(getBracket, id).Scan(&updatedBracket.Id, &updatedBracket.Name)
+	err = db.QueryRowx(getBracket, id).StructScan(&updatedBracket)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func UpdateBracket(db *sqlx.DB, id string, data *Bracket) Bracket {
 
 func DeleteBracket(db *sqlx.DB, id string) string {
 	var b Bracket
-	err := db.QueryRow(getBracket, id).Scan(&b.Id, &b.Name)
+	err := db.QueryRowx(getBracket, id).StructScan(&b)
 	if err != nil {
 		log.Fatal(err)
 	} else {

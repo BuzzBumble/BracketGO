@@ -32,3 +32,36 @@ func CreateMatchSet(db *sqlx.DB) http.HandlerFunc {
 		json.NewEncoder(w).Encode(ms)
 	}
 }
+
+func GetMatchSet(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		ms := models.GetMatchSet(db, id)
+
+		json.NewEncoder(w).Encode(ms)
+	}
+}
+
+func UpdateMatchSet(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var ms models.MatchSet
+		json.NewDecoder(r.Body).Decode(&ms)
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		models.UpdateMatchSet(db, id, &ms)
+
+		json.NewEncoder(w).Encode(ms)
+	}
+}
+
+func DeleteMatchSet(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		models.DeleteMatchSet(db, id)
+	}
+}

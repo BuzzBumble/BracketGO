@@ -48,5 +48,6 @@ func main() {
 	slog.Info("Routes successfully registered")
 
 	// start server
-	log.Fatal(http.ListenAndServe(":8000", router))
+	slog.Info("Starting server on port " + os.Getenv("PORT"))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("PORT"), router))
 }

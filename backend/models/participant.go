@@ -1,9 +1,6 @@
 package models
 
 import (
-	"log"
-	"log/slog"
-
 	"github.com/jmoiron/sqlx"
 )
 
@@ -19,48 +16,35 @@ var createParticipant = "INSERT INTO participants (name, bracket_id) VALUES ($1,
 var updateParticipant = "UPDATE participants SET name = $2 WHERE id = $1"
 var deleteParticipant = "DELETE FROM participants WHERE id = $1"
 
-func GetParticipants(db *sqlx.DB, bid string) []Participant {
+func GetParticipants(db *sqlx.DB, bid string) ([]Participant, error) {
 	p := []Participant{}
 	err := db.Select(&p, getParticipants, bid)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return p
+
+	return p, err
 }
 
-func CreateParticipant(db *sqlx.DB, data *Participant) *Participant {
+func CreateParticipant(db *sqlx.DB, data *Participant) error {
 	err := db.QueryRowx(createParticipant, data.Name, data.BracketId).Scan(&data.Id)
-
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return data
+	return err
 }
 
-func GetParticipant(db *sqlx.DB, id string) Participant {
+func GetParticipant(db *sqlx.DB, id string) (Participant, error) {
 	var p Participant
 	err := db.Get(&p, getParticipant, id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return p
+	return p, err
 }
 
-func UpdateParticipant(db *sqlx.DB, id string, data *Participant) {
+func UpdateParticipant(db *sqlx.DB, id string, data *Participant) error {
 	_, err := db.Exec(updateParticipant, id, data.Name)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-
 	err = db.QueryRowx(getParticipant, id).StructScan(data)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return err
+
 }
 
-func DeleteParticipant(db *sqlx.DB, id string) {
+func DeleteParticipant(db *sqlx.DB, id string) error {
 	_, err := db.Exec(deleteParticipant, id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
+	return err
 }

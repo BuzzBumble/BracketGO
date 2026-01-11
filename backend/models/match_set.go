@@ -1,8 +1,6 @@
 package models
 
 import (
-	"log/slog"
-
 	"github.com/jmoiron/sqlx"
 )
 
@@ -19,48 +17,35 @@ var getMatchSet = "SELECT * FROM match_sets WHERE id = $1 LIMIT 1"
 var updateMatchSet = "UPDATE match_sets SET participanta_id = $2, participantb_id = $3 WHERE id = $1"
 var deleteMatchSet = "DELETE FROM match_sets WHERE id = $1"
 
-func GetMatchSets(db *sqlx.DB, bid string) []MatchSet {
+func GetMatchSets(db *sqlx.DB, bid string) ([]MatchSet, error) {
 	ms := []MatchSet{}
 	err := db.Select(&ms, getMatchSets, bid)
-	if err != nil {
-		slog.Error(err.Error())
-	}
 
-	return ms
+	return ms, err
 }
 
-func CreateMatchSet(db *sqlx.DB, data *MatchSet) *MatchSet {
+func CreateMatchSet(db *sqlx.DB, data *MatchSet) error {
 	err := db.QueryRowx(createMatchSet, data.BracketId, data.ParticipantAId, data.ParticipantBId).Scan(&data.Id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return data
+	return err
 }
 
-func GetMatchSet(db *sqlx.DB, id string) MatchSet {
+func GetMatchSet(db *sqlx.DB, id string) (MatchSet, error) {
 	var ms MatchSet
 	err := db.Get(&ms, getMatchSet, id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
-	return ms
+	return ms, err
 }
 
-func UpdateMatchSet(db *sqlx.DB, id string, data *MatchSet) {
+func UpdateMatchSet(db *sqlx.DB, id string, data *MatchSet) error {
 	_, err := db.Exec(updateMatchSet, id, data.ParticipantAId, data.ParticipantBId)
 	if err != nil {
-		slog.Error(err.Error())
+		return err
 	}
 
 	err = db.QueryRowx(getMatchSet, id).StructScan(data)
-	if err != nil {
-		slog.Error(err.Error())
-	}
+	return err
 }
 
-func DeleteMatchSet(db *sqlx.DB, id string) {
+func DeleteMatchSet(db *sqlx.DB, id string) error {
 	_, err := db.Exec(deleteMatchSet, id)
-	if err != nil {
-		slog.Error(err.Error())
-	}
+	return err
 }

@@ -30,10 +30,10 @@ func RegisterRoutes(r *mux.Router, db *sqlx.DB) {
 	// POST /brackets/:id/participants/
 	r.HandleFunc("/api/go/brackets/{bracket_id}/participants", CreateParticipant(db)).Methods("POST")
 	// GET /participants/:id
-	r.HandleFunc("/api/go/participants/:id", GetParticipant(db)).Methods("GET")
+	r.HandleFunc("/api/go/participants/{id}", GetParticipant(db)).Methods("GET")
 	// PUT /participants/:id
-	r.HandleFunc("/api/go/participants/:id", UpdateParticipant(db)).Methods("PUT")
+	r.HandleFunc("/api/go/participants/{id}", UpdateParticipant(db)).Methods("PUT")
 	// DELETE /participants/:id
-	r.HandleFunc("/api/go/participants/:id", DeleteParticipant(db)).Methods("DELETE")
+	r.HandleFunc("/api/go/participants/{id}", DeleteParticipant(db)).Methods("DELETE")
 
 }

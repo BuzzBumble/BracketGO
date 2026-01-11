@@ -25,9 +25,9 @@ func RegisterRoutes(r *mux.Router, db *sqlx.DB) {
 	// DELETE /brackets/:id
 	r.HandleFunc("/api/go/brackets/{id}", DeleteBracket(db)).Methods("DELETE")
 
-	// GET /brackets/:id/participants
+	// GET /brackets/:bracket_id/participants
 	r.HandleFunc("/api/go/brackets/{bracket_id}/participants", GetParticipants(db)).Methods("GET")
-	// POST /brackets/:id/participants/
+	// POST /brackets/:bracket_id/participants/
 	r.HandleFunc("/api/go/brackets/{bracket_id}/participants", CreateParticipant(db)).Methods("POST")
 	// GET /participants/:id
 	r.HandleFunc("/api/go/participants/{id}", GetParticipant(db)).Methods("GET")
@@ -36,4 +36,8 @@ func RegisterRoutes(r *mux.Router, db *sqlx.DB) {
 	// DELETE /participants/:id
 	r.HandleFunc("/api/go/participants/{id}", DeleteParticipant(db)).Methods("DELETE")
 
+	// GET /brackets/:bracket_id/match_sets
+	r.HandleFunc("/api/go/brackets/{bracket_id}/match_sets", GetMatchSets(db)).Methods("GET")
+	// POST /brackets/:bracket_id/match_sets
+	r.HandleFunc("/api/go/brackets/{bracket_id}/match_sets", CreateMatchSet(db)).Methods("POST")
 }

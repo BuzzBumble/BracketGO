@@ -3,8 +3,6 @@ package routes
 import (
 	"bracketapi/models"
 	"encoding/json"
-	"fmt"
-	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -28,12 +26,6 @@ func CreateMatchSet(db *sqlx.DB) http.HandlerFunc {
 		bid := vars["bracket_id"]
 		json.NewDecoder(r.Body).Decode(&ms)
 		ms.BracketId, _ = strconv.Atoi(bid)
-		slog.Info(
-			"participants",
-			"A", fmt.Sprintf("%d", ms.ParticipantAId),
-			"B", fmt.Sprintf("%d", ms.ParticipantBId),
-			"Bracket", fmt.Sprintf("%d", ms.BracketId),
-		)
 
 		models.CreateMatchSet(db, &ms)
 

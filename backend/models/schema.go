@@ -2,6 +2,7 @@ package models
 
 var dropBrackets = `DROP TABLE IF EXISTS brackets`
 var dropParticipants = `DROP TABLE IF EXISTS participants`
+var dropMatchSets = `DROP TABLE IF EXISTS sets`
 
 var createBrackets = `CREATE TABLE IF NOT EXISTS brackets (
 	id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, 
@@ -14,15 +15,33 @@ var createParticipants = `CREATE TABLE IF NOT EXISTS participants (
 	bracket_id INT,
 	CONSTRAINT fk_bracket
 		FOREIGN KEY(bracket_id)
-			REFERENCES brackets(id)
+			REFERENCES brackets(id) ON DELETE CASCADE
+	)`
+
+var createMatchSets = `CREATE TABLE IF NOT EXISTS match_sets (
+	id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	bracket_id INT,
+	participantA_id INT,
+	participantB_id INT,
+	CONSTRAINT fk_bracket
+		FOREIGN KEY(bracket_id)
+			REFERENCES brackets(id) ON DELETE CASCADE,
+	CONSTRAINT fk_participantA
+		FOREIGN KEY(participantA_id)
+			REFERENCES participants(id),
+	CONSTRAINT fk_participantB
+		FOREIGN KEY(participantB_id)
+			REFERENCES participants(id)
 	)`
 
 var SchemaDropQueries = []string{
 	dropParticipants,
+	dropMatchSets,
 	dropBrackets,
 }
 
 var SchemaCreateQueries = []string{
 	createBrackets,
 	createParticipants,
+	createMatchSets,
 }

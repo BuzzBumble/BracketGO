@@ -56,9 +56,9 @@ func UpdateParticipant(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		updatedParticipant := models.UpdateParticipant(db, id, &p)
+		models.UpdateParticipant(db, id, &p)
 
-		json.NewEncoder(w).Encode(updatedParticipant)
+		json.NewEncoder(w).Encode(p)
 	}
 }
 
@@ -67,8 +67,6 @@ func DeleteParticipant(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		res := models.DeleteParticipant(db, id)
-
-		json.NewEncoder(w).Encode(res)
+		models.DeleteParticipant(db, id)
 	}
 }

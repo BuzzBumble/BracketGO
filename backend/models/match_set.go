@@ -16,7 +16,7 @@ type MatchSet struct {
 var getMatchSets = "SELECT * FROM match_sets WHERE bracket_id = $1 ORDER BY id ASC"
 var createMatchSet = "INSERT INTO match_sets (bracket_id, participanta_id, participantb_id) VALUES ($1, $2, $3) RETURNING id"
 var getMatchSet = "SELECT * FROM match_sets WHERE id = $1 LIMIT 1"
-var updateMatchSet = "UPDATE match_sets SET participanta_id = $2, participantb_id = $3 WHERE id = $1 RETURNING participanta_id, participantb_id"
+var updateMatchSet = "UPDATE match_sets SET participanta_id = $2, participantb_id = $3 WHERE id = $1"
 var deleteMatchSet = "DELETE FROM match_sets WHERE id = $1"
 
 func GetMatchSets(db *sqlx.DB, bid string) []MatchSet {
@@ -37,19 +37,25 @@ func CreateMatchSet(db *sqlx.DB, data *MatchSet) *MatchSet {
 	return data
 }
 
-func GetMatchSet(db *sqlx.DB, id string) *MatchSet {
+func GetMatchSet(db *sqlx.DB, id string) MatchSet {
 	var ms MatchSet
 	err := db.Get(&ms, getMatchSet, id)
 	if err != nil {
 		slog.Error(err.Error())
 	}
-	return &ms
+	return ms
 }
 
 func UpdateMatchSet(db *sqlx.DB, id string, data *MatchSet) {
-	db.QueryRowx(updateMatchSet, id, data.ParticipantAId, data.ParticipantBId)
+	_, err := db.Exec(updateMatchSet, id, data.ParticipantAId, data.ParticipantBId)
+	if err != nil {
+		slog.Error(err.Error())
+	}
 
-	db.QueryRowx(getMatchSet, id).StructScan(data)
+	err = db.QueryRowx(getMatchSet, id).StructScan(data)
+	if err != nil {
+		slog.Error(err.Error())
+	}
 }
 
 func DeleteMatchSet(db *sqlx.DB, id string) {

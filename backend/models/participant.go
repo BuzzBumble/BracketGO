@@ -13,7 +13,7 @@ type Participant struct {
 }
 
 var getParticipants = "SELECT * FROM participants WHERE bracket_id = $1 ORDER BY id ASC"
-var getParticipant = "SELECT * FROM participants WHERE id = $1"
+var getParticipant = "SELECT * FROM participants WHERE id = $1 LIMIT 1"
 var createParticipant = "INSERT INTO participants (name, bracket_id) VALUES ($1, $2) RETURNING id"
 var updateParticipant = "UPDATE participants SET name = $1 WHERE id = $2"
 var deleteParticipant = "DELETE FROM participants WHERE id = $1"
@@ -29,7 +29,7 @@ func GetParticipants(db *sqlx.DB, bracketId string) []Participant {
 
 func GetParticipant(db *sqlx.DB, id string) Participant {
 	var b Participant
-	err := db.QueryRow(getBracket, id).Scan(&b.Id, &b.Name)
+	err := db.Get(&b, getBracket, id)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func UpdateParticipant(db *sqlx.DB, id string, data *Participant) Participant {
 	}
 
 	var updatedBracket Participant
-	err = db.QueryRow(getBracket, id).Scan(&updatedBracket.Id, &updatedBracket.Name)
+	err = db.QueryRowx(getBracket, id).StructScan(&updatedBracket)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func UpdateParticipant(db *sqlx.DB, id string, data *Participant) Participant {
 
 func DeleteParticipant(db *sqlx.DB, id string) string {
 	var b Participant
-	err := db.QueryRow(getBracket, id).Scan(&b.Id, &b.Name)
+	err := db.QueryRowx(getBracket, id).StructScan(&b)
 	if err != nil {
 		log.Fatal(err)
 	} else {

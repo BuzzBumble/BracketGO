@@ -51,10 +51,10 @@ func UpdateBracket(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		updatedBracket := models.UpdateBracket(db, id, &b)
+		models.UpdateBracket(db, id, &b)
 
 		// Send the updated Bracket data in the response
-		json.NewEncoder(w).Encode(updatedBracket)
+		json.NewEncoder(w).Encode(b)
 	}
 }
 
@@ -64,8 +64,6 @@ func DeleteBracket(db *sqlx.DB) http.HandlerFunc {
 		vars := mux.Vars(r)
 		id := vars["id"]
 
-		res := models.DeleteBracket(db, id)
-
-		json.NewEncoder(w).Encode(res)
+		models.DeleteBracket(db, id)
 	}
 }

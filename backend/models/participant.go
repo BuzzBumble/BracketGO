@@ -2,6 +2,7 @@ package models
 
 import (
 	"log"
+	"log/slog"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -15,60 +16,51 @@ type Participant struct {
 var getParticipants = "SELECT * FROM participants WHERE bracket_id = $1 ORDER BY id ASC"
 var getParticipant = "SELECT * FROM participants WHERE id = $1 LIMIT 1"
 var createParticipant = "INSERT INTO participants (name, bracket_id) VALUES ($1, $2) RETURNING id"
-var updateParticipant = "UPDATE participants SET name = $1 WHERE id = $2"
+var updateParticipant = "UPDATE participants SET name = $2 WHERE id = $1"
 var deleteParticipant = "DELETE FROM participants WHERE id = $1"
 
-func GetParticipants(db *sqlx.DB, bracketId string) []Participant {
-	participants := []Participant{} // array of participants
-	err := db.Select(&participants, getParticipants, bracketId)
+func GetParticipants(db *sqlx.DB, bid string) []Participant {
+	p := []Participant{}
+	err := db.Select(&p, getParticipants, bid)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error(err.Error())
 	}
-	return participants
-}
-
-func GetParticipant(db *sqlx.DB, id string) Participant {
-	var b Participant
-	err := db.Get(&b, getBracket, id)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return b
+	return p
 }
 
 func CreateParticipant(db *sqlx.DB, data *Participant) *Participant {
-	db.QueryRowx(createParticipant, data.Name, data.BracketId).Scan(&data.Id)
+	err := db.QueryRowx(createParticipant, data.Name, data.BracketId).Scan(&data.Id)
 
+	if err != nil {
+		slog.Error(err.Error())
+	}
 	return data
 }
 
-func UpdateParticipant(db *sqlx.DB, id string, data *Participant) Participant {
-	_, err := db.Exec(updateParticipant, data.Name, id)
+func GetParticipant(db *sqlx.DB, id string) Participant {
+	var p Participant
+	err := db.Get(&p, getParticipant, id)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error(err.Error())
 	}
-
-	var updatedParticipant Participant
-	err = db.QueryRowx(getParticipant, id).StructScan(&updatedParticipant)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return updatedParticipant
+	return p
 }
 
-func DeleteParticipant(db *sqlx.DB, id string) string {
-	var p Participant
-	err := db.QueryRowx(getParticipant, id).StructScan(&p)
+func UpdateParticipant(db *sqlx.DB, id string, data *Participant) {
+	_, err := db.Exec(updateParticipant, id, data.Name)
 	if err != nil {
 		log.Fatal(err)
-	} else {
-		_, err := db.Exec(deleteParticipant, id)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		return "Participant Deleted"
 	}
-	return "Could not delete"
+
+	err = db.QueryRowx(getParticipant, id).StructScan(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func DeleteParticipant(db *sqlx.DB, id string) {
+	_, err := db.Exec(deleteParticipant, id)
+	if err != nil {
+		slog.Error(err.Error())
+	}
 }

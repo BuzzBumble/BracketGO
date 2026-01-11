@@ -3,6 +3,7 @@ package main
 import (
 	"bracketapi/models"
 	"bracketapi/routes"
+	"flag"
 	"log"
 	"log/slog"
 	"net/http"
@@ -30,12 +31,20 @@ func main() {
 	defer db.Close()
 
 	tx := db.MustBegin()
+	dropFlag := flag.Bool("drop", false, "whether to drop tables before starting")
+
+	flag.Parse()
+	if *dropFlag {
+		slog.Info("Dropping all tables...")
+		for _, query := range models.SchemaDropQueries {
+			tx.MustExec(query)
+		}
+	}
 
 	slog.Info("Creating database schema...")
 	for _, query := range models.SchemaCreateQueries {
 		tx.MustExec(query)
 	}
-
 	tx.Commit()
 	slog.Info("Schema successfully created")
 

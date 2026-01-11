@@ -36,3 +36,39 @@ func CreateParticipant(db *sqlx.DB) http.HandlerFunc {
 		json.NewEncoder(w).Encode(p)
 	}
 }
+
+func GetParticipant(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		p := models.GetParticipant(db, id)
+
+		json.NewEncoder(w).Encode(p)
+	}
+}
+
+func UpdateParticipant(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var p models.Participant
+		json.NewDecoder(r.Body).Decode(&p)
+
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		updatedParticipant := models.UpdateParticipant(db, id, &p)
+
+		json.NewEncoder(w).Encode(updatedParticipant)
+	}
+}
+
+func DeleteParticipant(db *sqlx.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id := vars["id"]
+
+		res := models.DeleteParticipant(db, id)
+
+		json.NewEncoder(w).Encode(res)
+	}
+}

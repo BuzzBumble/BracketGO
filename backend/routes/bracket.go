@@ -14,7 +14,7 @@ import (
 func GetBrackets(db *sqlx.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		brackets := models.GetBrackets(db)
-		json.NewEncoder(w).Encode(brackets)
+		SendJSONResponse(w, http.StatusOK, brackets)
 	}
 }
 
@@ -26,7 +26,7 @@ func GetBracket(db *sqlx.DB) http.HandlerFunc {
 
 		b := models.GetBracket(db, id)
 
-		json.NewEncoder(w).Encode(b)
+		SendJSONResponse(w, http.StatusOK, b)
 	}
 }
 
@@ -38,7 +38,7 @@ func CreateBracket(db *sqlx.DB) http.HandlerFunc {
 
 		models.CreateBracket(db, &b)
 
-		json.NewEncoder(w).Encode(b)
+		SendJSONResponse(w, http.StatusOK, b)
 	}
 }
 
@@ -54,7 +54,7 @@ func UpdateBracket(db *sqlx.DB) http.HandlerFunc {
 		models.UpdateBracket(db, id, &b)
 
 		// Send the updated Bracket data in the response
-		json.NewEncoder(w).Encode(b)
+		SendJSONResponse(w, http.StatusOK, b)
 	}
 }
 
@@ -65,5 +65,6 @@ func DeleteBracket(db *sqlx.DB) http.HandlerFunc {
 		id := vars["id"]
 
 		models.DeleteBracket(db, id)
+		SendJSONResponse(w, http.StatusOK, nil)
 	}
 }

@@ -10,8 +10,8 @@ import (
 )
 
 type StandardResponse struct {
-	Data  interface{} `json:"data,omitempty"`
-	Error interface{} `json:"error,omitempty"`
+	Data  any `json:"data,omitempty"`
+	Error any `json:"error,omitempty"`
 }
 
 func SendJSONResponse(w http.ResponseWriter, status int, data interface{}) {

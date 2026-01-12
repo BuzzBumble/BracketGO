@@ -43,7 +43,7 @@ export default function BracketsIndex () {
 
 	function renderBrackets() {
 		return brackets.map((b: Bracket) => (
-			<Card name={b.name} key={b.id}/>
+			<Card name={b.name} keyId={b.id}/>
 		))
 	}
 

@@ -27,7 +27,6 @@ export default function BracketsIndex () {
 			}
 			try {
 				const response = await axios.get(apiReqURL + "brackets")
-				console.log(response)
 				setBrackets(response.data.data);
 				setError("");
 			} catch (err:any) {
@@ -43,7 +42,7 @@ export default function BracketsIndex () {
 
 	function renderBrackets() {
 		return brackets.map((b: Bracket) => (
-			<Card name={b.name} keyId={b.id}/>
+			<Card name={b.name} key={b.id} id={b.id}/>
 		))
 	}
 

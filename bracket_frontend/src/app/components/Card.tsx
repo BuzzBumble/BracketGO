@@ -3,11 +3,11 @@ import styles from '../css/card.module.css'
 
 interface CardProps {
 	name: string;
-	keyId: number;
+	id: number;
 }
 
 export default function Card(props: CardProps) {
 	return (
-		<li className={styles.card} key={props.keyId}>{props.name}</li>
+		<li className={styles.card}>{props.name}</li>
 	)
 }
